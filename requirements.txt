@@ -3,3 +3,8 @@ uvicorn[standard]
 httpx
 sglang
 python-dotenv
+
+# testing
+pytest
+pytest-asyncio
+respx
