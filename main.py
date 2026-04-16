@@ -1,6 +1,7 @@
 import os
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Security
+from fastapi.security.api_key import APIKeyHeader
 from dotenv import load_dotenv
 
 from models import ChatRequest, ChatResponse
@@ -10,9 +11,17 @@ load_dotenv()
 app = FastAPI(title="Local LLM API")
 
 VLLM_BASE_URL = os.getenv("VLLM_BASE_URL", "http://localhost:30000")
+API_KEY = os.getenv("X_API_KEY")
+
+api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
 
 
-@app.post("/chat", response_model=ChatResponse)
+async def verify_api_key(key: str = Security(api_key_header)):
+    if not key or key != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+
+@app.post("/chat", response_model=ChatResponse, dependencies=[Security(verify_api_key)])
 async def chat(request: ChatRequest):
     payload = request.model_dump(exclude_none=True)
 
