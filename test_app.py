@@ -4,6 +4,7 @@ import respx
 import httpx
 from fastapi.testclient import TestClient
 
+# Must be set before importing main, which reads env vars at module load time
 os.environ.setdefault("X_API_KEY", "test-secret")
 os.environ.setdefault("VLLM_BASE_URL", "http://localhost:30000")
 
